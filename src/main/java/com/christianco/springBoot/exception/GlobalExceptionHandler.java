@@ -12,19 +12,19 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidations(MethodArgumentNotValidException ex) {
-        Map<String, String> errores = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> 
-            errores.put(error.getField(), error.getDefaultMessage())
-        );
-        return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
-    }
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<Map<String, String>> handleValidations(MethodArgumentNotValidException ex) {
+		Map<String, String> errores = new HashMap<>();
+		ex.getBindingResult().getFieldErrors().forEach(error -> 
+			errores.put(error.getField(), error.getDefaultMessage())
+		);
+		return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
+	}
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<Map<String, String>> handleGeneralErrors(RuntimeException ex) {
-        Map<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
-    }
+	@ExceptionHandler(RuntimeException.class)
+	public ResponseEntity<Map<String, String>> handleGeneralErrors(RuntimeException ex) {
+		Map<String, String> error = new HashMap<>();
+		error.put("error", ex.getMessage());
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+	}
 }

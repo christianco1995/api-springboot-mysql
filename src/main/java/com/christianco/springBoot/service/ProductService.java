@@ -35,7 +35,7 @@ public class ProductService {
     public ProductDTO updateProduct(Long id, ProductDTO dto) {
         Product producto = productoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto con ID " + id + " no encontrado"));
-        
+
         producto.setName(dto.getName());
         producto.setPrice(dto.getPrice());
         Product actualizado = productoRepository.save(producto);

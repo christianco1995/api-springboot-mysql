@@ -16,38 +16,38 @@ import org.springframework.data.domain.Sort;
 @RequestMapping("/api/products")
 public class ProductController {
 
-    @Autowired
-    private ProductService productoService;
+	@Autowired
+	private ProductService productoService;
 
-    @GetMapping
-    public ResponseEntity<Page<ProductDTO>> list(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "id") String sort) {
-        
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        
-        return ResponseEntity.ok(productoService.getAll(pageable));
-    }
+	@GetMapping
+	public ResponseEntity<Page<ProductDTO>> list(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "10") int size,
+			@RequestParam(defaultValue = "id") String sort) {
+		
+		Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+		
+		return ResponseEntity.ok(productoService.getAll(pageable));
+	}
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(productoService.getById(id));
-    }
+	@GetMapping("/{id}")
+	public ResponseEntity<ProductDTO> getById(@PathVariable("id") Long id) {
+		return ResponseEntity.ok(productoService.getById(id));
+	}
 
-    @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO dto) {
-        return new ResponseEntity<>(productoService.saveProduct(dto), HttpStatus.CREATED);
-    }
+	@PostMapping
+	public ResponseEntity<ProductDTO> createProduct(@Valid @RequestBody ProductDTO dto) {
+		return new ResponseEntity<>(productoService.saveProduct(dto), HttpStatus.CREATED);
+	}
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable("id") Long id, @Valid @RequestBody ProductDTO dto) {
-        return ResponseEntity.ok(productoService.updateProduct(id, dto));
-    }
+	@PutMapping("/{id}")
+	public ResponseEntity<ProductDTO> updateProduct(@PathVariable("id") Long id, @Valid @RequestBody ProductDTO dto) {
+		return ResponseEntity.ok(productoService.updateProduct(id, dto));
+	}
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id) {
-        productoService.deleteProduct(id);
-        return ResponseEntity.noContent().build();
-    }
+	@DeleteMapping("/{id}")
+	public ResponseEntity<Void> deleteProduct(@PathVariable("id") Long id) {
+		productoService.deleteProduct(id);
+		return ResponseEntity.noContent().build();
+	}
 }
