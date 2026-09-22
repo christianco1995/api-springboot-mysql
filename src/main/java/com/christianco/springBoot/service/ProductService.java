@@ -1,59 +1,81 @@
 package com.christianco.springBoot.service;
 
-import com.christianco.springBoot.dto.ProductDTO;
+import com.christianco.springBoot.dto.ProductRequestDTO;
+import com.christianco.springBoot.dto.ProductResponseDTO;
 import com.christianco.springBoot.entity.Product;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
+import com.christianco.springBoot.exception.ResourceNotFoundException;
 import com.christianco.springBoot.repository.ProductRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productoRepository;
+    private final ProductRepository productRepository;
 
-    public Page<ProductDTO> getAll(Pageable pageable) {
-        return productoRepository.findAll(pageable).map(this::convertToDto);
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
     }
 
-    public ProductDTO getById(Long id) {
-        Product producto = productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto con ID " + id + " no encontrado"));
-        return convertToDto(producto);
+    @Transactional(readOnly = true)
+    public List<ProductResponseDTO> getAllProducts() {
+        return productRepository.findAll().stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
     }
 
-    public ProductDTO saveProduct(ProductDTO dto) {
-        Product producto = new Product();
-        producto.setName(dto.getName());
-        producto.setPrice(dto.getPrice());
-        Product guardado = productoRepository.save(producto);
-        return convertToDto(guardado);
+    @Transactional(readOnly = true)
+    public ProductResponseDTO getProductById(Long id) {
+        Product product = getProductEntityById(id);
+        return mapToDTO(product);
     }
 
-    public ProductDTO updateProduct(Long id, ProductDTO dto) {
-        Product producto = productoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto con ID " + id + " no encontrado"));
-
-        producto.setName(dto.getName());
-        producto.setPrice(dto.getPrice());
-        Product actualizado = productoRepository.save(producto);
-        return convertToDto(actualizado);
+    @Transactional
+    public ProductResponseDTO createProduct(ProductRequestDTO requestDTO) {
+        Product product = new Product();
+        product.setName(requestDTO.getName());
+        product.setCategory(requestDTO.getCategory());
+        product.setPrice(requestDTO.getPrice());
+        product.setStock(requestDTO.getStock());
+        
+        Product savedProduct = productRepository.save(product);
+        return mapToDTO(savedProduct);
     }
 
+    @Transactional
+    public ProductResponseDTO updateProduct(Long id, ProductRequestDTO requestDTO) {
+        Product product = getProductEntityById(id);
+        
+        product.setName(requestDTO.getName());
+        product.setCategory(requestDTO.getCategory());
+        product.setPrice(requestDTO.getPrice());
+        product.setStock(requestDTO.getStock());
+        
+        Product updatedProduct = productRepository.save(product);
+        return mapToDTO(updatedProduct);
+    }
+
+    @Transactional
     public void deleteProduct(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new RuntimeException("Producto con ID " + id + " no encontrado");
-        }
-        productoRepository.deleteById(id);
+        Product product = getProductEntityById(id);
+        productRepository.delete(product);
+    }
+    
+    public Product getProductEntityById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con el ID: " + id));
     }
 
-    private ProductDTO convertToDto(Product producto) {
-        ProductDTO dto = new ProductDTO();
-        dto.setId(producto.getId());
-        dto.setName(producto.getName());
-        dto.setPrice(producto.getPrice());
+    private ProductResponseDTO mapToDTO(Product product) {
+        ProductResponseDTO dto = new ProductResponseDTO();
+        dto.setId(product.getId());
+        dto.setName(product.getName());
+        dto.setCategory(product.getCategory());
+        dto.setPrice(product.getPrice());
+        dto.setStock(product.getStock());
         return dto;
     }
 }
